@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+</head>
+<body>
+    <form th:action="@{/calculator}" method="get">
+        <div>
+            <label for="">А: </label>
+            <input type="number" name="a" th:value="${param.a}" required>
+        </div>
+
+        <div>
+            <label for="">А: </label>
+            <input type="number" name="b" th:value="${param.b}" required>
+        </div>
+
+        <button type="submit" name="action" value="add">+</button>
+        <button type="submit" name="action" value="sub">-</button>
+    </form>
+
+    <div>
+        <h1>Результат</h1>
+    </div>
+
+    <p th:if="${result != null}">
+        <span th:text="${a}"></span>
+        <span th:text="${op}"></span>
+        <span th:text="${b}"></span>
+        <span th:text="'=' + ${result}"></span>
+    </p>
+
+    <a href="/">Главная</a>
+</body>
+</html>
