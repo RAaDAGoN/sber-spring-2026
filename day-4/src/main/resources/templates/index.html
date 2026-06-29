@@ -38,29 +38,27 @@
     </thead>
     <tbody class="divide-y divide-gray-200 bg-white">
     <tr th:each="file : ${fileList}" class="hover:bg-gray-50 transition-colors">
-        <!-- Колонка: Тип -->
+        <!-- Тип -->
         <td class="px-4 py-3 text-center text-lg">
             <span th:if="${file.isDirectory}" th:text="'<DIR>'"></span>
             <span th:unless="${file.isDirectory}" th:text="''"></span>
         </td>
 
-        <!-- Колонка: Имя со ссылкой для папок -->
+        <!--Имя со ссылкой для папок -->
         <td class="px-4 py-3 font-medium">
-            <!-- Если это папка -->
             <a th:if="${file.isDirectory}" th:href="@{/(path=${file.absolutePath})}"
                class="text-blue-600 hover:underline" th:text="${file.name}"></a>
 
-            <!-- Если это файл -->
             <span th:unless="${file.isDirectory}" class="text-gray-900" th:text="${file.name}"></span>
         </td>
 
-        <!-- Колонка: Размер -->
+        <!-- Размер -->
         <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
             <span th:if="${file.isDirectory}" class="text-gray-400 font-mono">—</span>
             <span th:unless="${file.isDirectory}" class="font-mono" th:text="${file.size} + ' Кб'"></span>
         </td>
 
-        <!-- Колонка: Дата изменения -->
+        <!-- Дата изменения -->
         <td class="px-4 py-3 text-gray-500 whitespace-nowrap font-mono">
             <span th:if="${file.isDirectory}" class="text-gray-400 font-mono">—</span>
             <span th:unless="${file.isDirectory}" class="font-mono" th:text="${file.lastModified}"></span>
