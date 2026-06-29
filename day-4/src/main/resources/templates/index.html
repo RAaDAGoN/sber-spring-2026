@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Файловый менеджер</title>
+</head>
+<body>
+<div>
+    <form class="flex flex-row justify-center items-center py-3" th:action="@{/}" method="get">
+        <div th:if="${path != null}" class="mr-2">
+            <a th:href="@{/(path=${parentPath})}"
+               class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
+                Назад
+            </a>
+        </div>
+
+
+        <input class="w-[100%] shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               name="path" id="path" type="text" th:value="${path}" required>
+
+
+    </form>
+</div>
+
+
+<table th:if="!${dirNotExists}" class="min-w-full divide-y divide-gray-200 text-sm text-left">
+    <thead class="bg-gray-100 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+    <tr>
+        <th class="px-4 py-3 text-center w-12">Тип</th>
+        <th class="px-4 py-3">Имя</th>
+        <th class="px-4 py-3 w-32">Размер</th>
+        <th class="px-4 py-3 w-48">Дата изменения</th>
+    </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 bg-white">
+    <tr th:each="file : ${fileList}" class="hover:bg-gray-50 transition-colors">
+        <!-- Колонка: Тип -->
+        <td class="px-4 py-3 text-center text-lg">
+            <span th:if="${file.isDirectory}" th:text="'<DIR>'"></span>
+            <span th:unless="${file.isDirectory}" th:text="''"></span>
+        </td>
+
+        <!-- Колонка: Имя со ссылкой для папок -->
+        <td class="px-4 py-3 font-medium">
+            <!-- Если это папка -->
+            <a th:if="${file.isDirectory}" th:href="@{/(path=${file.absolutePath})}"
+               class="text-blue-600 hover:underline" th:text="${file.name}"></a>
+
+            <!-- Если это файл -->
+            <span th:unless="${file.isDirectory}" class="text-gray-900" th:text="${file.name}"></span>
+        </td>
+
+        <!-- Колонка: Размер -->
+        <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
+            <span th:if="${file.isDirectory}" class="text-gray-400 font-mono">—</span>
+            <span th:unless="${file.isDirectory}" class="font-mono" th:text="${file.size} + ' Кб'"></span>
+        </td>
+
+        <!-- Колонка: Дата изменения -->
+        <td class="px-4 py-3 text-gray-500 whitespace-nowrap font-mono">
+            <span th:if="${file.isDirectory}" class="text-gray-400 font-mono">—</span>
+            <span th:unless="${file.isDirectory}" class="font-mono" th:text="${file.lastModified}"></span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:unless="!${dirNotExists}" class="flex items-center justify-center w-full h-full">
+    <span>Такой путь не обнаружен</span>
+</div>
+
+</body>
+</html>
