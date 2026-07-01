@@ -9,7 +9,9 @@ import org.radagon.day5.repository.BookRepository;
 import org.radagon.day5.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -24,19 +26,21 @@ public class UserService {
                 .build();
 
 
-        List<Book> books = userDTO.getBooks().stream()
-                .map(bookDTO -> Book.builder()
-                        .bookTitle(bookDTO.getBookTitle())
-                        .bookAuthor(bookDTO.getBookAuthor())
-                        .user(user)
-                        .build())
-                .toList();
+        if (userDTO.getBooks() != null && !userDTO.getBooks().isEmpty()) {
+            List<Long> bookIds = userDTO.getBooks().stream()
+                    .map(BookDTO::getId)
+                    .filter(Objects::nonNull)
+                    .toList();
 
-        user.setBooks(books);
+            List<Book> books = bookRepository.findAllById(bookIds);
 
-        User savedUser = userRepository.save(user);
+            books.forEach(book -> book.setUser(user));
+            user.setBooks(books);
+        } else {
+            user.setBooks(new ArrayList<>());
+        }
 
-        return savedUser;
+        return userRepository.save(user);
     }
 
     public List<User> findAllUsers() {
@@ -53,23 +57,24 @@ public class UserService {
     }
 
     public User update(UserDTO userDTO) {
-        if (userDTO != null) {
-            User user = findById(userDTO.getId());
+        if (userDTO.getId() != null) {
+            User user = userRepository.findById(userDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             user.setUserName(userDTO.getUserName());
             user.setUserEmail(userDTO.getUserEmail());
 
-            if (userDTO.getBooks() != null) {
-                user.getBooks().clear();
+            user.getBooks().clear();
+            if (userDTO.getBooks() != null && !userDTO.getBooks().isEmpty()) {
 
-                List<Book> newBook = userDTO.getBooks().stream()
-                        .map(bookDTO -> Book.builder()
-                                .bookTitle(bookDTO.getBookTitle())
-                                .bookAuthor(bookDTO.getBookAuthor())
-                                .user(user)
-                                .build())
+                List<Long> bookIds = userDTO.getBooks().stream()
+                        .map(BookDTO::getId)
+                        .filter(Objects::nonNull)
                         .toList();
 
-                user.getBooks().addAll(newBook);
+                List<Book> books = bookRepository.findAllById(bookIds);
+
+                books.forEach(book -> book.setUser(user));
+                user.getBooks().addAll(books);
             }
 
             return userRepository.save(user);

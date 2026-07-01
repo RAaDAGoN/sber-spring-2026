@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Document</title>
+</head>
+<body>
+<div class="max-w-4xl mx-auto">
+    <div>
+        <a th:href="@{/books}">Книги</a>
+        <a th:href="@{/users}">Авторы</a>
+    </div>
+
+    <!-- Заголовок и кнопка -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Список книг</h1>
+        <a th:href="@{/books/new}">
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-200 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Добавить книгу
+            </button>
+        </a>
+    </div>
+
+    <!-- Таблица в карточке -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Название</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Автор</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Действие</th>
+            </tr>
+            </thead>
+
+            <tbody class="bg-white divide-y divide-gray-200">
+            <tr th:each="book : ${books}" class="hover:bg-gray-50 transition duration-150">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <span th:text="${book.getId()}"></span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <span th:text="${book.getBookTitle()}"></span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <span th:text="${book.getBookAuthor()}"></span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <a th:href="@{/books/edit/{id}(id=${book.getId()})}">
+                        <span th:text="'Редактировать'"></span>
+                    </a>
+
+                </td>
+            </tr>
+            <!-- Сообщение при отсутствии книг -->
+            <tr th:if="${#lists.isEmpty(books)}">
+                <td colspan="3" class="px-6 py-8 text-center text-gray-400">
+                    Книг пока нет. Добавьте первую!
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

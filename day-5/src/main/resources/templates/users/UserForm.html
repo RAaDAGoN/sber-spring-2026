@@ -1,13 +1,203 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Редактирование пользователя</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen p-8">
+
+<div class="max-w-5xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Редактирование пользователя</h1>
+        <p class="text-gray-600 mt-1">Измените данные пользователя и его книги</p>
+    </div>
+
+    <form th:action="@{/users/submitForm}" method="post" id="userForm">
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="p-6 space-y-6">
+                <input type="hidden" name="id" th:value="${userDTO.getId()}">
+
+                <div>
+                    <label for="userName" class="block text-sm font-medium text-gray-700 mb-2">
+                        Имя пользователя
+                    </label>
+                    <input type="text" id="userName" name="userName" th:value="${userDTO.getUserName()}" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
+                           placeholder="Введите имя">
+                </div>
+
+                <div>
+                    <label for="userEmail" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email
+                    </label>
+                    <input type="email" id="userEmail" name="userEmail" th:value="${userDTO.getUserEmail()}" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
+                           placeholder="Введите email">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Книги пользователя</h2>
+                    <button type="button" onclick="addBookRow()"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-200 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Добавить книгу
+                    </button>
+                </div>
+
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Книга</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody id="booksTableBody" class="bg-white divide-y divide-gray-200">
+                    <tr th:if="${#lists.isEmpty(userDTO.books)}" id="noBooksMessage">
+                        <td colspan="2" class="px-6 py-8 text-center text-gray-400">
+                            У пользователя пока нет книг
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit"
+                    class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md transition duration-200 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Сохранить изменения
+            </button>
+
+            <button th:if="${userDTO.getId() != null}" type="button"
+                    th:onclick="|if(confirm('Удалить этого пользователя?')) { document.getElementById('deleteForm').submit(); }|"
+                    class="bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-md transition duration-200 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Удалить
+            </button>
+
+            <a th:href="@{/users}"
+               class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2.5 px-6 rounded-lg shadow-md transition duration-200 flex items-center justify-center">
+                Отмена
+            </a>
+        </div>
+    </form>
+
+    <form id="deleteForm" th:action="@{/users/delete/{id}(id=${userDTO.getId()})}" method="post" style="display: none;"></form>
+</div>
+
+<script th:inline="javascript">
+    // Данные книг из сервера
+    const allBooks = [
+        /*[# th:each="book : ${books}"]*/
+        { id: /*[[${book.id}]]*/ '', title: /*[[${book.bookTitle}]]*/ '', author: /*[[${book.bookAuthor}]]*/ '' },
+        /*[/]*/
+    ];
+
+    // Книги пользователя
+    const userBooks = [
+        /*[# th:each="book : ${userDTO.books}"]*/
+        { id: /*[[${book.id}]]*/ '', bookId: /*[[${book.id}]]*/ '' },
+        /*[/]*/
+    ];
+
+    let bookIndex = 0;
+
+    function createBookSelect(selectedBookId = null) {
+        const select = document.createElement('select');
+        select.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none';
+        select.name = `books[${bookIndex}].id`;
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '-- Выберите книгу --';
+        select.appendChild(defaultOption);
+
+        allBooks.forEach(book => {
+            const option = document.createElement('option');
+            option.value = book.id;
+            option.textContent = `${book.title} - ${book.author}`;
+            if (selectedBookId && book.id == selectedBookId) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        return select;
+    }
+
+    function addBookRow(selectedBookId = null) {
+        const tbody = document.getElementById('booksTableBody');
+        const noBooksMessage = document.getElementById('noBooksMessage');
+
+        if (noBooksMessage) {
+            noBooksMessage.remove();
+        }
+
+        const row = document.createElement('tr');
+        row.className = 'book-row';
+
+        const selectCell = document.createElement('td');
+        selectCell.className = 'px-6 py-4 whitespace-nowrap text-sm';
+
+        const select = createBookSelect(selectedBookId);
+        selectCell.appendChild(select);
+
+        const actionCell = document.createElement('td');
+        actionCell.className = 'px-6 py-4 whitespace-nowrap text-sm';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'text-red-600 hover:text-red-700 font-medium transition duration-200';
+        removeBtn.textContent = 'Удалить';
+        removeBtn.onclick = function() { removeBookRow(this); };
+
+        actionCell.appendChild(removeBtn);
+
+        row.appendChild(selectCell);
+        row.appendChild(actionCell);
+        tbody.appendChild(row);
+
+        bookIndex++;
+    }
+
+    function removeBookRow(button) {
+        const row = button.closest('tr');
+        row.remove();
+
+        const tbody = document.getElementById('booksTableBody');
+        if (tbody.children.length === 0) {
+            tbody.innerHTML = `
+                <tr id="noBooksMessage">
+                    <td colspan="2" class="px-6 py-8 text-center text-gray-400">
+                        У пользователя пока нет книг
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // Инициализация существующих книг при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        userBooks.forEach(book => {
+            if (book.bookId) {
+                addBookRow(book.bookId);
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

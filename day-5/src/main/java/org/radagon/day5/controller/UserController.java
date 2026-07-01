@@ -1,22 +1,24 @@
 package org.radagon.day5.controller;
 
 import lombok.AllArgsConstructor;
+import org.radagon.day5.dto.BookDTO;
 import org.radagon.day5.dto.UserDTO;
 import org.radagon.day5.entity.User;
+import org.radagon.day5.service.BookService;
 import org.radagon.day5.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final BookService bookService;
 
     @GetMapping
     public String usersPage(Model model) {
@@ -31,6 +33,7 @@ public class UserController {
         UserDTO userDTO = new UserDTO();
 
         model.addAttribute("userDTO", userDTO);
+        model.addAttribute("books", bookService.findAllBooks());
 
         return "users/UserForm";
     }
@@ -44,11 +47,35 @@ public class UserController {
         userDTO.setUserName(user.getUserName());
         userDTO.setUserEmail(user.getUserEmail());
 
+        if (user.getBooks() != null) {
+            List<BookDTO> books = user.getBooks().stream()
+                    .map(book -> {
+                        BookDTO bookDTO = new BookDTO();
+                        bookDTO.setId(book.getId());
+                        bookDTO.setBookTitle(book.getBookTitle());
+                        bookDTO.setBookAuthor(book.getBookAuthor());
+                        return bookDTO;
+                    })
+                    .collect(Collectors.toList());
 
+            userDTO.setBooks(books);
+        }
 
-
-//        userDTO.setBooks();
+        model.addAttribute("userDTO", userDTO);
+        model.addAttribute("books", bookService.findAllBooks());
 
         return "users/UserForm";
+    }
+
+    @PostMapping("/submitForm")
+    public String submitForm(@ModelAttribute UserDTO userDTO) {
+        userService.update(userDTO);
+        return "redirect:/users";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userService.deleteById(id);
+        return "redirect:/users";
     }
 }
