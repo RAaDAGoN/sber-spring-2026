@@ -10,6 +10,7 @@ public class UserDTO {
 
     private String userName;
     private String userEmail;
+    private String password;
 
     private List<BookDTO> books;
 }

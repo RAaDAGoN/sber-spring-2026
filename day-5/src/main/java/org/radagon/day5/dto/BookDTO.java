@@ -8,5 +8,6 @@ public class BookDTO {
 
     private String bookTitle;
     private String bookAuthor;
+    private Long userId;
 
 }

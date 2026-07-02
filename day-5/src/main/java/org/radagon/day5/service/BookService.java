@@ -3,7 +3,9 @@ package org.radagon.day5.service;
 import lombok.AllArgsConstructor;
 import org.radagon.day5.dto.BookDTO;
 import org.radagon.day5.entity.Book;
+import org.radagon.day5.entity.User;
 import org.radagon.day5.repository.BookRepository;
+import org.radagon.day5.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,12 +14,17 @@ import java.util.List;
 @AllArgsConstructor
 public class BookService {
     private BookRepository bookRepository;
+    private UserRepository userRepository;
 
     public Book createBook(BookDTO bookDTO) {
+
+        User user = userRepository.findById(bookDTO.getUserId())
+                .orElseThrow(()-> new RuntimeException("User not found"));
 
         Book book = Book.builder()
                 .bookTitle(bookDTO.getBookTitle())
                 .bookAuthor(bookDTO.getBookAuthor())
+                .user(user)
                 .build();
 
         return bookRepository.save(book);

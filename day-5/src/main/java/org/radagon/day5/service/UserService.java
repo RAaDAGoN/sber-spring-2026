@@ -7,6 +7,7 @@ import org.radagon.day5.entity.Book;
 import org.radagon.day5.entity.User;
 import org.radagon.day5.repository.BookRepository;
 import org.radagon.day5.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,11 +19,14 @@ import java.util.Objects;
 public class UserService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User createUser(UserDTO userDTO) {
         User user = User.builder()
                 .userName(userDTO.getUserName())
                 .userEmail(userDTO.getUserEmail())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .role("ROLE_USER")
                 .build();
 
 
